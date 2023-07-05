@@ -1,0 +1,578 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMO4JvZy2yNJmiLZMq9LPPW",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "ir",
+      "display_name": "R"
+    },
+    "language_info": {
+      "name": "R"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/Alice049/ml/blob/main/iPAS%E8%9D%95%E5%88%BB%E8%A3%BD%E7%A8%8B%E5%AF%A6%E9%A9%97%EF%BC%B2\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "考慮蝕刻製程\n",
+        "研究RF功率有4個水準,160,180,200,220W\n",
+        "每個RF功率測試5片晶圓\n",
+        "反應變數是蝕刻率\n",
+        "實驗設計計畫\n",
+        "水準a=4\n",
+        "重複n=5\n",
+        "只考慮RF功率,因此是一因子實驗\n",
+        "全部實驗次數為20\n"
+      ],
+      "metadata": {
+        "id": "JCY7HzHmKEXH"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "rf<-c(\"160\",\"180\",\"200\",\"220\")"
+      ],
+      "metadata": {
+        "id": "ZQJxcjCDEFzB"
+      },
+      "execution_count": 1,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "rfPower<-gl(4,5,label=rf)"
+      ],
+      "metadata": {
+        "id": "pdZv91BfEjsg"
+      },
+      "execution_count": 3,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "rfPower"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 52
+        },
+        "id": "OINAu1dgEtpX",
+        "outputId": "77324fbe-ea10-47ea-a698-ebfc6116fd3d"
+      },
+      "execution_count": 4,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>160</li><li>160</li><li>160</li><li>160</li><li>160</li><li>180</li><li>180</li><li>180</li><li>180</li><li>180</li><li>200</li><li>200</li><li>200</li><li>200</li><li>200</li><li>220</li><li>220</li><li>220</li><li>220</li><li>220</li></ol>\n",
+              "\n",
+              "<details>\n",
+              "\t<summary style=display:list-item;cursor:pointer>\n",
+              "\t\t<strong>Levels</strong>:\n",
+              "\t</summary>\n",
+              "\t<style>\n",
+              "\t.list-inline {list-style: none; margin:0; padding: 0}\n",
+              "\t.list-inline>li {display: inline-block}\n",
+              "\t.list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "\t</style>\n",
+              "\t<ol class=list-inline><li>'160'</li><li>'180'</li><li>'200'</li><li>'220'</li></ol>\n",
+              "</details>"
+            ],
+            "text/markdown": "1. 160\n2. 160\n3. 160\n4. 160\n5. 160\n6. 180\n7. 180\n8. 180\n9. 180\n10. 180\n11. 200\n12. 200\n13. 200\n14. 200\n15. 200\n16. 220\n17. 220\n18. 220\n19. 220\n20. 220\n\n\n\n**Levels**: 1. '160'\n2. '180'\n3. '200'\n4. '220'\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 160\n\\item 160\n\\item 160\n\\item 160\n\\item 160\n\\item 180\n\\item 180\n\\item 180\n\\item 180\n\\item 180\n\\item 200\n\\item 200\n\\item 200\n\\item 200\n\\item 200\n\\item 220\n\\item 220\n\\item 220\n\\item 220\n\\item 220\n\\end{enumerate*}\n\n\\emph{Levels}: \\begin{enumerate*}\n\\item '160'\n\\item '180'\n\\item '200'\n\\item '220'\n\\end{enumerate*}\n",
+            "text/plain": [
+              " [1] 160 160 160 160 160 180 180 180 180 180 200 200 200 200 200 220 220 220 220\n",
+              "[20] 220\n",
+              "Levels: 160 180 200 220"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "set.seed(168)\n",
+        "ind<- sample(4*5,20)\n",
+        "rfPowerRandom <-rfPower[ind]\n",
+        "head(rfPowerRandom)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 52
+        },
+        "id": "TzfgI7FREwog",
+        "outputId": "2c0def08-417d-46c9-f425-f69af846abdc"
+      },
+      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<style>\n",
+              ".list-inline {list-style: none; margin:0; padding: 0}\n",
+              ".list-inline>li {display: inline-block}\n",
+              ".list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "</style>\n",
+              "<ol class=list-inline><li>200</li><li>200</li><li>220</li><li>220</li><li>160</li><li>160</li></ol>\n",
+              "\n",
+              "<details>\n",
+              "\t<summary style=display:list-item;cursor:pointer>\n",
+              "\t\t<strong>Levels</strong>:\n",
+              "\t</summary>\n",
+              "\t<style>\n",
+              "\t.list-inline {list-style: none; margin:0; padding: 0}\n",
+              "\t.list-inline>li {display: inline-block}\n",
+              "\t.list-inline>li:not(:last-child)::after {content: \"\\00b7\"; padding: 0 .5ex}\n",
+              "\t</style>\n",
+              "\t<ol class=list-inline><li>'160'</li><li>'180'</li><li>'200'</li><li>'220'</li></ol>\n",
+              "</details>"
+            ],
+            "text/markdown": "1. 200\n2. 200\n3. 220\n4. 220\n5. 160\n6. 160\n\n\n\n**Levels**: 1. '160'\n2. '180'\n3. '200'\n4. '220'\n\n\n",
+            "text/latex": "\\begin{enumerate*}\n\\item 200\n\\item 200\n\\item 220\n\\item 220\n\\item 160\n\\item 160\n\\end{enumerate*}\n\n\\emph{Levels}: \\begin{enumerate*}\n\\item '160'\n\\item '180'\n\\item '200'\n\\item '220'\n\\end{enumerate*}\n",
+            "text/plain": [
+              "[1] 200 200 220 220 160 160\n",
+              "Levels: 160 180 200 220"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "晶圓蝕刻率\n",
+        "實驗結果"
+      ],
+      "metadata": {
+        "id": "t65Rs89nFoeL"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "EtchRate<-c(575,542,530,539,570,565,593,590,579,610,600,651,610,637,629,725,700,715,685,710)"
+      ],
+      "metadata": {
+        "id": "tsT6mcEgFNwy"
+      },
+      "execution_count": 15,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "plasmaEtch<-data.frame(rfPower=as.factor(rfPower),EtchRate)\n",
+        "plasmaEtch"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 725
+        },
+        "id": "qV49Fiq7FoNc",
+        "outputId": "1bc4fc88-ba57-4ff5-92e1-28423c52b060"
+      },
+      "execution_count": 16,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A data.frame: 20 × 2</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>rfPower</th><th scope=col>EtchRate</th></tr>\n",
+              "\t<tr><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>180</td><td>575</td></tr>\n",
+              "\t<tr><td>160</td><td>542</td></tr>\n",
+              "\t<tr><td>160</td><td>530</td></tr>\n",
+              "\t<tr><td>180</td><td>539</td></tr>\n",
+              "\t<tr><td>220</td><td>570</td></tr>\n",
+              "\t<tr><td>160</td><td>565</td></tr>\n",
+              "\t<tr><td>160</td><td>593</td></tr>\n",
+              "\t<tr><td>160</td><td>590</td></tr>\n",
+              "\t<tr><td>180</td><td>579</td></tr>\n",
+              "\t<tr><td>180</td><td>610</td></tr>\n",
+              "\t<tr><td>200</td><td>600</td></tr>\n",
+              "\t<tr><td>200</td><td>651</td></tr>\n",
+              "\t<tr><td>200</td><td>610</td></tr>\n",
+              "\t<tr><td>200</td><td>637</td></tr>\n",
+              "\t<tr><td>220</td><td>629</td></tr>\n",
+              "\t<tr><td>220</td><td>725</td></tr>\n",
+              "\t<tr><td>180</td><td>700</td></tr>\n",
+              "\t<tr><td>200</td><td>715</td></tr>\n",
+              "\t<tr><td>220</td><td>685</td></tr>\n",
+              "\t<tr><td>220</td><td>710</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA data.frame: 20 × 2\n\n| rfPower &lt;fct&gt; | EtchRate &lt;dbl&gt; |\n|---|---|\n| 180 | 575 |\n| 160 | 542 |\n| 160 | 530 |\n| 180 | 539 |\n| 220 | 570 |\n| 160 | 565 |\n| 160 | 593 |\n| 160 | 590 |\n| 180 | 579 |\n| 180 | 610 |\n| 200 | 600 |\n| 200 | 651 |\n| 200 | 610 |\n| 200 | 637 |\n| 220 | 629 |\n| 220 | 725 |\n| 180 | 700 |\n| 200 | 715 |\n| 220 | 685 |\n| 220 | 710 |\n\n",
+            "text/latex": "A data.frame: 20 × 2\n\\begin{tabular}{ll}\n rfPower & EtchRate\\\\\n <fct> & <dbl>\\\\\n\\hline\n\t 180 & 575\\\\\n\t 160 & 542\\\\\n\t 160 & 530\\\\\n\t 180 & 539\\\\\n\t 220 & 570\\\\\n\t 160 & 565\\\\\n\t 160 & 593\\\\\n\t 160 & 590\\\\\n\t 180 & 579\\\\\n\t 180 & 610\\\\\n\t 200 & 600\\\\\n\t 200 & 651\\\\\n\t 200 & 610\\\\\n\t 200 & 637\\\\\n\t 220 & 629\\\\\n\t 220 & 725\\\\\n\t 180 & 700\\\\\n\t 200 & 715\\\\\n\t 220 & 685\\\\\n\t 220 & 710\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "   rfPower EtchRate\n",
+              "1  180     575     \n",
+              "2  160     542     \n",
+              "3  160     530     \n",
+              "4  180     539     \n",
+              "5  220     570     \n",
+              "6  160     565     \n",
+              "7  160     593     \n",
+              "8  160     590     \n",
+              "9  180     579     \n",
+              "10 180     610     \n",
+              "11 200     600     \n",
+              "12 200     651     \n",
+              "13 200     610     \n",
+              "14 200     637     \n",
+              "15 220     629     \n",
+              "16 220     725     \n",
+              "17 180     700     \n",
+              "18 200     715     \n",
+              "19 220     685     \n",
+              "20 220     710     "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Anova分析"
+      ],
+      "metadata": {
+        "id": "32FrsrRAGkZr"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "y_dot_dot<-mean(plasmaEtch$EtchRate)\n",
+        "sum(plasmaEtch$EtchRate-y_dot_dot)^2\n"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "TaThXJuCGp9a",
+        "outputId": "c51ec37f-59df-4006-eca8-d86c66656334"
+      },
+      "execution_count": 17,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "0"
+            ],
+            "text/markdown": "0",
+            "text/latex": "0",
+            "text/plain": [
+              "[1] 0"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "SST<-sum((plasmaEtch$EtchRate-y_dot_dot)^2)\n",
+        "y_i_dot<-aggregate(EtchRate~rfPower,data=plasmaEtch,FUN=mean)\n",
+        "y_i_dot"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 224
+        },
+        "id": "D2y4Z8zyG7sP",
+        "outputId": "00be3735-10b9-4e54-d0a0-d65ab8e17fe3"
+      },
+      "execution_count": 20,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "<table class=\"dataframe\">\n",
+              "<caption>A data.frame: 4 × 2</caption>\n",
+              "<thead>\n",
+              "\t<tr><th scope=col>rfPower</th><th scope=col>EtchRate</th></tr>\n",
+              "\t<tr><th scope=col>&lt;fct&gt;</th><th scope=col>&lt;dbl&gt;</th></tr>\n",
+              "</thead>\n",
+              "<tbody>\n",
+              "\t<tr><td>160</td><td>564.0</td></tr>\n",
+              "\t<tr><td>180</td><td>600.6</td></tr>\n",
+              "\t<tr><td>200</td><td>642.6</td></tr>\n",
+              "\t<tr><td>220</td><td>663.8</td></tr>\n",
+              "</tbody>\n",
+              "</table>\n"
+            ],
+            "text/markdown": "\nA data.frame: 4 × 2\n\n| rfPower &lt;fct&gt; | EtchRate &lt;dbl&gt; |\n|---|---|\n| 160 | 564.0 |\n| 180 | 600.6 |\n| 200 | 642.6 |\n| 220 | 663.8 |\n\n",
+            "text/latex": "A data.frame: 4 × 2\n\\begin{tabular}{ll}\n rfPower & EtchRate\\\\\n <fct> & <dbl>\\\\\n\\hline\n\t 160 & 564.0\\\\\n\t 180 & 600.6\\\\\n\t 200 & 642.6\\\\\n\t 220 & 663.8\\\\\n\\end{tabular}\n",
+            "text/plain": [
+              "  rfPower EtchRate\n",
+              "1 160     564.0   \n",
+              "2 180     600.6   \n",
+              "3 200     642.6   \n",
+              "4 220     663.8   "
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "SSTreatment<-5*sum((y_i_dot$EtchRate -y_dot_dot)^2)\n",
+        "SSTreatment"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "bmSQutH5Hzqo",
+        "outputId": "19c5a057-8dc4-4829-bbd3-ac45c86dde2b"
+      },
+      "execution_count": 21,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "29606.55"
+            ],
+            "text/markdown": "29606.55",
+            "text/latex": "29606.55",
+            "text/plain": [
+              "[1] 29606.55"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "SSE<-SST-SSTreatment\n",
+        "SSE"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "B0zE5V9zIFJg",
+        "outputId": "ef9ba19b-401f-4157-db3e-aaf76c1784be"
+      },
+      "execution_count": 22,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "42603.2"
+            ],
+            "text/markdown": "42603.2",
+            "text/latex": "42603.2",
+            "text/plain": [
+              "[1] 42603.2"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "變異數分析表"
+      ],
+      "metadata": {
+        "id": "HnVEOE9wIMJt"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "MSTreatment<-29606.55/3\n",
+        "MSE<-42603.2/16\n",
+        "F0<-MSTreatment/MSE\n",
+        "\n",
+        "F_critical<-qf(p=0.95,df1=3,df2=16)\n",
+        "ifelse(F0>=F_critical,\"Reject Ho\",\"Accept H0\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "xoDnqEkvIStv",
+        "outputId": "3fdee410-d871-4041-80cb-f2094bf72bbf"
+      },
+      "execution_count": 24,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "'Reject Ho'"
+            ],
+            "text/markdown": "'Reject Ho'",
+            "text/latex": "'Reject Ho'",
+            "text/plain": [
+              "[1] \"Reject Ho\""
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "pvalue<-pf(q=F0,df1=3,df2=16,lower.tail=FALSE)\n",
+        "ifelse(pvalue<0.05,\"Reject Ho\",\"Accept H0\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 34
+        },
+        "id": "QIAMC2kyJDby",
+        "outputId": "dfb82454-e0f8-476a-e49b-c4be2563ee42"
+      },
+      "execution_count": 25,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/html": [
+              "'Reject Ho'"
+            ],
+            "text/markdown": "'Reject Ho'",
+            "text/latex": "'Reject Ho'",
+            "text/plain": [
+              "[1] \"Reject Ho\""
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "使用aov{Ststs}"
+      ],
+      "metadata": {
+        "id": "H16X4VR1Jbjb"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "plasmaEtchANOVA <-aov(EtchRate~rfPower,data=plasmaEtch)\n",
+        "plasmaEtchANOVA"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 196
+        },
+        "id": "0-Q6tiS9JhY8",
+        "outputId": "5431fbda-c1a8-445a-d328-06f9d022e65b"
+      },
+      "execution_count": 26,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "Call:\n",
+              "   aov(formula = EtchRate ~ rfPower, data = plasmaEtch)\n",
+              "\n",
+              "Terms:\n",
+              "                 rfPower Residuals\n",
+              "Sum of Squares  29606.55  42603.20\n",
+              "Deg. of Freedom        3        16\n",
+              "\n",
+              "Residual standard error: 51.60136\n",
+              "Estimated effects may be unbalanced"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "summary(plasmaEtchANOVA)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 106
+        },
+        "id": "3b-SOUV4JymU",
+        "outputId": "60e26621-5dad-4a22-9077-94e3878c8833"
+      },
+      "execution_count": 27,
+      "outputs": [
+        {
+          "output_type": "display_data",
+          "data": {
+            "text/plain": [
+              "            Df Sum Sq Mean Sq F value Pr(>F)  \n",
+              "rfPower      3  29607    9869   3.706 0.0337 *\n",
+              "Residuals   16  42603    2663                 \n",
+              "---\n",
+              "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"
+            ]
+          },
+          "metadata": {}
+        }
+      ]
+    }
+  ]
+}
